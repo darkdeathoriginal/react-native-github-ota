@@ -36,8 +36,30 @@ npx github-ota-init
 ```
 
 This will:
+
 1. Copy the GitHub Actions workflow into `.github/workflows/ota-bundle.yml`
 2. Add `embed-commit` and `prebuild` scripts to your `package.json`
+3. **Patch `MainApplication.kt`** to load downloaded OTA bundles on startup
+
+> **Note:** Run `npx expo prebuild` first so the `android/` directory exists before running `npx github-ota-init`.
+
+### What Requires Native Code?
+
+The library itself is **pure JavaScript/TypeScript** — checking for updates, downloading bundles, and the UI banner all work without native code.
+
+However, **loading the downloaded bundle on app restart** requires a one-time native change to `MainApplication.kt`. The `npx github-ota-init` command does this automatically. If you need to do it manually, add this to your `MainApplication.kt`:
+
+```kotlin
+import java.io.File
+
+// Inside your DefaultReactNativeHost object, add:
+override fun getJSBundleFile(): String? {
+    val otaBundle = File(applicationContext.filesDir, "ota/index.android.bundle")
+    return if (otaBundle.exists()) otaBundle.absolutePath else null
+}
+```
+
+This tells React Native: "if an OTA bundle exists on disk, load it; otherwise use the built-in one from the APK."
 
 ### Manual Setup
 
@@ -76,6 +98,7 @@ cp node_modules/react-native-github-ota/workflow/ota-bundle.yml .github/workflow
 Or create `.github/workflows/ota-bundle.yml` manually — see [workflow/ota-bundle.yml](workflow/ota-bundle.yml) for the full template.
 
 **What the workflow does:**
+
 - Triggers on every push to `main`
 - Installs dependencies and embeds the commit hash
 - Runs `react-native bundle` to create the JS bundle
@@ -96,8 +119,8 @@ import { configureOta } from "react-native-github-ota";
 configureOta({
   owner: "your-github-username",
   repo: "your-repo-name",
-  branch: "main",              // optional, default "main"
-  releaseTag: "ota-latest",    // optional, default "ota-latest"
+  branch: "main", // optional, default "main"
+  releaseTag: "ota-latest", // optional, default "ota-latest"
   bundleFileName: "index.android.bundle", // optional
 });
 ```
@@ -172,28 +195,28 @@ import { OtaUpdateBanner } from "react-native-github-ota";
 
 ### `useGithubOta(options)`
 
-| Option             | Type                             | Default | Description                                |
-| ------------------ | -------------------------------- | ------- | ------------------------------------------ |
-| `buildInfo`        | `BuildInfo`                      | **required** | Build info from embed-commit script   |
-| `autoCheckOnMount` | `boolean`                        | `true`  | Auto-check for updates on mount            |
-| `shouldAutoCheck`  | `() => boolean \| Promise<boolean>` | —    | Guard for auto-check (e.g. user settings)  |
+| Option             | Type                                | Default      | Description                               |
+| ------------------ | ----------------------------------- | ------------ | ----------------------------------------- |
+| `buildInfo`        | `BuildInfo`                         | **required** | Build info from embed-commit script       |
+| `autoCheckOnMount` | `boolean`                           | `true`       | Auto-check for updates on mount           |
+| `shouldAutoCheck`  | `() => boolean \| Promise<boolean>` | —            | Guard for auto-check (e.g. user settings) |
 
 **Returns:**
 
-| Field                    | Type                        | Description                        |
-| ------------------------ | --------------------------- | ---------------------------------- |
-| `status`                 | `string \| null`            | Current status message             |
-| `error`                  | `string \| null`            | Error message if any               |
-| `isAvailable`            | `boolean`                   | Whether an update is available     |
-| `isChecking`             | `boolean`                   | Currently checking for updates     |
-| `isDownloading`          | `boolean`                   | Currently downloading              |
-| `downloadProgress`       | `number`                    | Download progress (0-100)          |
-| `updateInfo`             | `UpdateInfo \| null`        | Details about the available update |
-| `lastChecked`            | `number \| null`            | Timestamp of last check            |
-| `checkUpdate`            | `(manual?: boolean) => void`| Trigger an update check            |
-| `downloadAndApplyUpdate` | `() => void`                | Download and install the update    |
-| `setStatus`              | `(s: string \| null) => void` | Override status message          |
-| `buildInfo`              | `BuildInfo`                 | The build info passed in           |
+| Field                    | Type                          | Description                        |
+| ------------------------ | ----------------------------- | ---------------------------------- |
+| `status`                 | `string \| null`              | Current status message             |
+| `error`                  | `string \| null`              | Error message if any               |
+| `isAvailable`            | `boolean`                     | Whether an update is available     |
+| `isChecking`             | `boolean`                     | Currently checking for updates     |
+| `isDownloading`          | `boolean`                     | Currently downloading              |
+| `downloadProgress`       | `number`                      | Download progress (0-100)          |
+| `updateInfo`             | `UpdateInfo \| null`          | Details about the available update |
+| `lastChecked`            | `number \| null`              | Timestamp of last check            |
+| `checkUpdate`            | `(manual?: boolean) => void`  | Trigger an update check            |
+| `downloadAndApplyUpdate` | `() => void`                  | Download and install the update    |
+| `setStatus`              | `(s: string \| null) => void` | Override status message            |
+| `buildInfo`              | `BuildInfo`                   | The build info passed in           |
 
 ### `OtaUpdateBanner`
 
@@ -201,7 +224,7 @@ A ready-made banner component. Accepts theme `colors` for dark/light mode suppor
 
 ### `npx github-ota-init`
 
-CLI command that scaffolds the GitHub Actions workflow and build scripts into your project.
+CLI command that scaffolds the GitHub Actions workflow, build scripts, and native setup into your project.
 
 ## License
 
