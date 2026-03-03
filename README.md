@@ -70,11 +70,23 @@ import java.io.File
 // Inside your DefaultReactNativeHost object, add:
 override fun getJSBundleFile(): String? {
     val otaBundle = File(applicationContext.filesDir, "ota/index.android.bundle")
-    return if (otaBundle.exists()) otaBundle.absolutePath else null
+    if (!otaBundle.exists()) return null
+
+    // If the APK was updated after the OTA bundle was downloaded, the OTA is stale
+    try {
+        val appInfo = applicationContext.packageManager.getPackageInfo(applicationContext.packageName, 0)
+        if (appInfo.lastUpdateTime > otaBundle.lastModified()) {
+            otaBundle.delete()
+            File(applicationContext.filesDir, "ota/meta.json").delete()
+            return null
+        }
+    } catch (_: Exception) {}
+
+    return otaBundle.absolutePath
 }
 ```
 
-This tells React Native: "if an OTA bundle exists on disk, load it; otherwise use the built-in one from the APK."
+This tells React Native: "if an OTA bundle exists on disk **and** is newer than the installed APK, load it; otherwise use the built-in one." This prevents stale OTA bundles from overriding a newer rebuild.
 
 ### Manual Setup
 

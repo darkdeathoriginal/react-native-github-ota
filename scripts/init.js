@@ -141,7 +141,19 @@ if (!pluginAdded) {
   const OTA_IMPORT = "import java.io.File";
   const OTA_METHOD = `          override fun getJSBundleFile(): String? {
             val otaBundle = File(applicationContext.filesDir, "ota/index.android.bundle")
-            return if (otaBundle.exists()) otaBundle.absolutePath else null
+            if (!otaBundle.exists()) return null
+
+            // If the APK was updated after the OTA bundle was downloaded, the OTA is stale
+            try {
+              val appInfo = applicationContext.packageManager.getPackageInfo(applicationContext.packageName, 0)
+              if (appInfo.lastUpdateTime > otaBundle.lastModified()) {
+                otaBundle.delete()
+                File(applicationContext.filesDir, "ota/meta.json").delete()
+                return null
+              }
+            } catch (_: Exception) {}
+
+            return otaBundle.absolutePath
           }`;
 
   /**
