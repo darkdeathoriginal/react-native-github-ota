@@ -1,0 +1,55 @@
+{
+  "name": "react-native-github-ota",
+  "version": "1.0.0",
+  "description": "GitHub-based OTA updates for React Native / Expo apps. Downloads JS bundles from GitHub Releases and applies them on next restart.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "files": [
+    "dist",
+    "scripts",
+    "workflow",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "bin": {
+    "github-ota-init": "scripts/init.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "embed-commit": "node scripts/embed-commit.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/darkdeathoriginal/react-native-github-ota.git"
+  },
+  "bugs": {
+    "url": "https://github.com/darkdeathoriginal/react-native-github-ota/issues"
+  },
+  "homepage": "https://github.com/darkdeathoriginal/react-native-github-ota#readme",
+  "keywords": [
+    "react-native",
+    "expo",
+    "ota",
+    "github",
+    "update",
+    "over-the-air",
+    "codepush",
+    "github-actions"
+  ],
+  "author": "darkdeathoriginal",
+  "license": "MIT",
+  "peerDependencies": {
+    "expo-file-system": ">=16.0.0",
+    "react": ">=18.0.0",
+    "react-native": ">=0.72.0"
+  },
+  "devDependencies": {
+    "@types/react": ">=18.0.0",
+    "react": ">=18.0.0",
+    "react-native": ">=0.72.0",
+    "typescript": "^5.0.0"
+  }
+}

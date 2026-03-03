@@ -1,0 +1,11 @@
+# Source files (included via "files" in package.json, but keep clean)
+node_modules/
+dist/
+.git/
+.github/
+
+# Dev files
+tsconfig.cjs.json
+.prettierrc
+.eslintrc*
+*.tgz
