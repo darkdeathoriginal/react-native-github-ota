@@ -10,6 +10,7 @@
     "scripts",
     "workflow",
     "src",
+    "app.plugin.js",
     "README.md",
     "LICENSE"
   ],

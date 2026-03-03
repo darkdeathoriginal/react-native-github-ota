@@ -39,15 +39,30 @@ This will:
 
 1. Copy the GitHub Actions workflow into `.github/workflows/ota-bundle.yml`
 2. Add `embed-commit` and `prebuild` scripts to your `package.json`
-3. **Patch `MainApplication.kt`** to load downloaded OTA bundles on startup
+3. **Add the config plugin** to your `app.json` — native code is applied automatically on `expo prebuild`
+4. For bare RN projects (no Expo): patches `MainApplication.kt` directly
 
-> **Note:** Run `npx expo prebuild` first so the `android/` directory exists before running `npx github-ota-init`.
+After running init, rebuild your native project:
 
-### What Requires Native Code?
+```bash
+npx expo prebuild --clean
+```
 
-The library itself is **pure JavaScript/TypeScript** — checking for updates, downloading bundles, and the UI banner all work without native code.
+### Native Code — Handled Automatically
 
-However, **loading the downloaded bundle on app restart** requires a one-time native change to `MainApplication.kt`. The `npx github-ota-init` command does this automatically. If you need to do it manually, add this to your `MainApplication.kt`:
+The library ships an **Expo Config Plugin** that automatically patches `MainApplication.kt` during `expo prebuild`. No manual native code changes needed.
+
+**For Expo projects:** Just add the plugin to your `app.json` (the init command does this for you):
+
+```json
+{
+  "expo": {
+    "plugins": ["react-native-github-ota"]
+  }
+}
+```
+
+**For bare React Native projects:** The init command patches `MainApplication.kt` directly. If you need to do it manually, add this:
 
 ```kotlin
 import java.io.File
@@ -224,7 +239,7 @@ A ready-made banner component. Accepts theme `colors` for dark/light mode suppor
 
 ### `npx github-ota-init`
 
-CLI command that scaffolds the GitHub Actions workflow, build scripts, and native setup into your project.
+CLI command that scaffolds the GitHub Actions workflow, build scripts, config plugin, and native setup into your project. For Expo projects it adds the config plugin to `app.json`; for bare RN projects it patches `MainApplication.kt` directly.
 
 ## License
 
