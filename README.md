@@ -206,7 +206,3 @@ CLI command that scaffolds the GitHub Actions workflow and build scripts into yo
 ## License
 
 MIT
-
-## License
-
-MIT
