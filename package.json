@@ -1,6 +1,6 @@
 {
   "name": "react-native-github-ota",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "GitHub-based OTA updates for React Native / Expo apps. Downloads JS bundles from GitHub Releases and applies them on next restart.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
